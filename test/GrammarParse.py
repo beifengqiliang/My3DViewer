@@ -103,6 +103,7 @@ def parserGrammar(filename):
             parseGrammar(child_of_root)
 
 
+'''
 def parseCenterOperator(operator_node):
     if operator_node.get("axesSelector") is None:
         print("copy node has to have axesSelector attribute.")
@@ -123,7 +124,7 @@ def parseCenterOperator(operator_node):
     else:
         axesSelector = "AXES_SELECTOR_XYZ"
     # 返回坐标轴值
-    return CenterOperator(axesSelector)
+    # return CenterOperator(axesSelector)
 
 
 def parseColorOperator(operator_node):
@@ -140,6 +141,8 @@ def parseColorOperator(operator_node):
         return ColorOperator(r, g, b)
     else:
         return ColorOperator(s)
+
+'''
 
 
 def parseCompOperator(operator_node):

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<grammars version="1.0">
+    <grammar type="building" version="1.0" author="caojin">
+	    <attr name="depth" value="13" range="8,45"/>
+        <attr name="height" value="9" range="8,25"/>
+        <attr name="width" value="9" range="8,20"/>
+	    <rule name="Start">
+            <translate mode="rel" coordSystem="world">
+                <param value="0" name="x" type="absolute"/>
+                <param value="0" name="y" type="absolute"/>
+                <param value="0" name="z" type="absolute"/>
+            </translate>
+            <size centered="true">
+                <param value="width" name="xSize" type="absolute"/>
+                <param value="depth" name="ySize" type="absolute"/>
+                <param value="0" name="zSize" type="absolute"/>
+            </size>
+            <extrude height="height"/>
+            <comp>
+                <param value="Base" name="bottom"/>
+                <param value="Facade" name="side"/>
+                <param value="Roof" name="top"/>
+            </comp>
+        </rule>
+	</grammar>
+</grammars>
