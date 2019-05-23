@@ -44,10 +44,10 @@ def parseGrammar(root):
                 elif operator_node.tag == "comp":
                     print("comp")
                     parseCompOperator(operator_node)
-                    # grammar.addOperator(name, parseCompOperator(operator_node))
+                    # addOperator(name, parseCompOperator(operator_node))
                 elif operator_node.tag == "color":
                     print("color")
-                    # grammar.addOperator(name, parseColorOperator(operator_node))
+                    # addOperator(name, parseColorOperator(operator_node))
                 elif operator_node.tag == "center":
                     print("center")
                 elif operator_node.tag == "cornerCut":
@@ -103,7 +103,6 @@ def parserGrammar(filename):
             parseGrammar(child_of_root)
 
 
-'''
 def parseCenterOperator(operator_node):
     if operator_node.get("axesSelector") is None:
         print("copy node has to have axesSelector attribute.")
@@ -142,8 +141,6 @@ def parseColorOperator(operator_node):
     else:
         return ColorOperator(s)
 
-'''
-
 
 def parseCompOperator(operator_node):
     name_map = {}
@@ -174,6 +171,368 @@ def parseCompOperator(operator_node):
     print("name_map的键值对")
     print(name_map)
     # return CompOperator(name_map)
+
+
+def parseCopyOperator(operator_node):
+    if operator_node.get("name") is None:
+        print("copy node has to have name attribute.")
+    copy_name = operator_node.get("name")
+    return CopyOperator(copy_name)
+
+
+def parseCornerCutOperator(operator_node):
+    if operator_node.get("type") is None:
+        print("curnerCut node has to have type attribute.")
+    if operator_node.get("type") == "straight":
+        CornerCutType = "CORNER_CUT_STRAIGHT"
+    elif operator_node.get("type") == "curve":
+        CornerCutType = "CORNER_CUT_CURVE"
+    else:
+        CornerCutType = "CORNER_CUT_NEGATIVE_CURVE"
+    if operator_node.get("length") is None:
+        print("curnerCut node has to have length attribute.")
+    length = operator_node.get("length")
+    return CornerCutOperator(CornerCutType, length)
+
+
+# 切角操作
+def parseExtrudeOperator(operator_node):
+    if operator_node.get("height") is None:
+        print("extrude node has to have height attribute.")
+    height = operator_node.get("height")
+    return ExtrudeOperator(height)
+
+
+# 半球形状操作
+def parseHemisphereOperator(operator_node):
+    return HemisphereOperator()
+
+
+def parseInnerArchOperator(operator_node):
+    inside = operator_node.get("inside")
+    border = operator_node.get("border")
+    return InnerArchOperator(inside, border)
+
+
+# 内圆操作
+def parseInnerCircleOperator(operator_node):
+    return InnerCircleOperator()
+
+
+# 内半圆操作
+def parseInnerSemiCircleOperator(operator_node):
+    return InnerSemiCircleOperator()
+
+
+# 插入操作
+def parseInsertOperator(operator_node):
+    if operator_node.get("geometryPath") is None:
+        print("insert node has to have geometryPath attribute.")
+    geometryPath = operator_node.get("geometryPath")
+    return InsertOperator(geometryPath)
+
+
+def parseOffsetOperator(operator_node):
+    if operator_node.get("offsetDistance") is None:
+        print("offset node has to have offsetDistance attribute.")
+    offsetDistance = operator_node.get("offsetDistance")
+    inside = operator_node.get("inside")
+    border = operator_node.get("border")
+    return OffsetOperator(offsetDistance, inside, border)
+
+
+# 椎体操作
+def parsePyramidOperator(operator_node):
+    if operator_node.get("height") is None:
+        print("pyramid node has to have height attribute.")
+    height = operator_node.get("height")
+    return PyramidOperator(height)
+
+
+def parseRoofGableOperator(operator_node):
+    if operator_node.get("angle") is None:
+        print("roofGable node has to have angle attribute.")
+    angle = operator_node.get("angle")
+    return RoofGableOperator(angle)
+
+
+def parseRoofHipOperator(operator_node):
+    if operator_node.get("angle") is None:
+        print("roofHip node has to have angle attribute.")
+    angle = operator_node.get("angle")
+    return RoofHipOperator(angle)
+
+
+def parseRotateOperator(operator_node):
+    for child_node in operator_node:
+        if not(child_node is None):
+            if child_node.tag == "param":
+                name = operator_node.get("name")
+                if name == "xAngle":
+                    xAngle = operator_node.get("xAngle")
+                elif name == "yAngle":
+                    yAngle = operator_node.get("yAngle")
+                elif name == "zAngle":
+                    zAngle = operator_node.get("zAngle")
+    return RotateOperator(xAngle, yAngle, zAngle)
+
+
+def parseSetupProjectionOperator(operator_node):
+    if operator_node.get("axesSelector") is None:
+        print("setupProjection node has to have axesSelector attribute.")
+    sAxesSelector = operator_node.get("axesSelector")
+    if sAxesSelector == "scope.xy":
+        axesSelector = "AXES_SCOPE_XY"
+    elif sAxesSelector == "scope.xz":
+        axesSelector = "AXES_SCOPE_XZ"
+    else:
+        axesSelector = "AXES_SCOPE_XY"
+    for child_node in operator_node:
+        if child_node.tag == "param":
+            name = child_node.get("name")
+            if name == "texWidth":
+                texWidthType = child_node.get("type")
+                # 字符串转数字：数字 = string.atof("")
+                value = child_node.get("value")
+                if texWidthType == "absolute":
+                    texWidth = abs(value)
+                elif texWidthType == "relative":
+                    texWidth = value
+                else:
+                    print("type of texWidth for texture has to be either absolute or relative.")
+            elif name == "texHeight":
+                texHeightType = child_node.get("type")
+                value = child_node.get("value")
+                if texHeightType == "absolute":
+                    texHeight = abs(value)
+                elif texHeightType == "relative":
+                    texHeight = value
+                else:
+                    print("type of texHeight for texture has to be either absolute or relative.")
+    SetupProjectionOperator(axesSelector, texWidth, texHeight)
+
+
+def parseShapeLOperator(operator_node):
+    frontWidthFound = False
+    rightWidthFound = False
+
+    for child_node in operator_node:
+        if child_node.tag == "param":
+            name = child_node.get("name")
+            if child_node.get("type") is None:
+                print("param node under size node has to have type attribute.")
+            shapeLType = child_node.get("type")
+            value = child_node.get("value")
+            if name == "frontWidth":
+                frontWidthFound = True
+                if shapeLType == "absolute":
+                    frontWidth = abs(value)
+                elif shapeLType == "relative":
+                    frontWidth = value
+                else:
+                    print("type attribute under shapeL node has to be either relative or absolute.")
+            elif name == "rightWidth":
+                rightWidthFound = True
+                if shapeLType == "absolute":
+                    rightWidth = abs(value)
+                elif shapeLType == "relative":
+                    rightWidth = value
+                else:
+                    print("type attribute under shapeL node has to be either relative or absolute.")
+    if frontWidthFound is False:
+        print("shapeL node has to have frontWidth parametter.")
+    if rightWidthFound is False:
+        print("shapeL node has to have rightWidth parametter.")
+    return ShapeLOperator(frontWidth, rightWidth)
+
+
+def parseShapeUOperator(operator_node):
+    frontWidthFound = False
+    backDepthFound = False
+    for child_node in operator_node:
+        if child_node.tag == "param":
+            name = child_node.get("name")
+            if child_node.get("type") is None:
+                print("param node under size node has to have type attribute.")
+            shapeUType = child_node.get("type")
+            value = child_node.get("value")
+            if name == "frontWidth":
+                frontWidthFound = True
+                if shapeUType == "absolute":
+                    frontWidth = abs(value)
+                elif shapeUType == "relative":
+                    frontWidth = value
+                else:
+                    print("type attribute under shapeU node has to be either relative or absolute.")
+            elif name == "backDepth":
+                backDepthFound = True
+                if shapeUType == "absolute":
+                    backDepth = abs(value)
+                elif shapeUType == "relative":
+                    backDepth = value
+                else:
+                    print("type attribute under shapeU node has to be either relative or absolute.")
+    if frontWidthFound is False:
+        print("shapeU node has to have frontWidth parametter.")
+    if backDepthFound is False:
+        print("shapeU node has to have rightWidth parametter.")
+    return ShapeUOperator(frontWidth, backDepth)
+
+
+def parseSizeOperator(operator_node):
+    centered = False
+    if not(operator_node.get("centered") is None):
+        if operator_node.get("centered") == "true":
+            centered = True
+    for child_node in operator_node:
+        if child_node.tag == "param":
+            name = child_node.get("name")
+            if child_node.get("type") is None:
+                print("param node under size node has to have type attribute.")
+            sizeType = child_node.get("type")
+            value = child_node.get("value")
+            if name == "xSize":
+                if sizeType == "relative":
+                    xSize = value
+                elif sizeType == "absolute":
+                    xSize = value
+                else:
+                    print("type attribute under size node has to be either relative or absolute.")
+            elif name == "ySize":
+                if sizeType == "relative":
+                    ySize = value
+                elif sizeType == "absolute":
+                    ySize = value
+                else:
+                    print("type attribute under size node has to be either relative or absolute.")
+            elif name == "zSize":
+                if sizeType == "relative":
+                    zSize = value
+                elif sizeType == "absolute":
+                    zSize = value
+                else:
+                    print("type attribute under size node has to be either relative or absolute.")
+    return SizeOperator(xSize, ySize, zSize, centered)
+
+
+def parseSplitOperator(operator_node):
+    if operator_node.get("splitAxis") is None:
+        print("split node has to have splitAxis attribute.")
+    if operator_node.get("splitAxis") == "x":
+        splitAxis = "DIRECTION_X"
+    elif operator_node.get("splitAxis") == "y":
+        splitAxis = "DIRECTION_Y"
+    else:
+        splitAxis = "DIRECTION_Z"
+    for child_node in operator_node:
+        if child_node.tag == "param":
+            splitType = child_node.get("type")
+            value = child_node.get("value")
+            repeat = False
+            if not(child_node.get("repeat") is None):
+                repeat = True
+            if repeat:
+                if splitType == "absolute":
+                    print(value)
+                    # sizes.push_back(Value(Value::TYPE_ABSOLUTE, value, true))
+                elif splitType == "relative":
+                    print(value)
+                    # sizes.push_back(Value(Value::TYPE_RELATIVE, value, true))
+                else:
+                    print(value)
+                    # sizes.push_back(Value(Value::TYPE_FLOATING, value, true))
+            else:
+                if splitType == "absolute":
+                    print(value)
+                    # sizes.push_back(Value(Value::TYPE_ABSOLUTE, value))
+                elif splitType == "relative":
+                    print(value)
+                    # sizes.push_back(Value(Value::TYPE_RELATIVE, value))
+                else:
+                    print(value)
+                    # sizes.push_back(Value(Value::TYPE_FLOATING, value))
+            # names.push_back(name)
+    # return SplitOperator(splitAxis, sizes, names)
+
+
+def parseTaperOperator(operator_node):
+    if operator_node.get("height") is None:
+        print("taper node has to have height attribute.")
+    if operator_node.get("slope") is None:
+        print("taper node has to have slope attribute.")
+    height = operator_node.get("height")
+    slope = operator_node.get("slope")
+    # return TaperOperator(height, slope)
+
+
+def parseTextureOperator(operator_node):
+    if operator_node.get("texturePath") is None:
+        print("texture node has to have texturePathtexturePath attribute.")
+    texture = operator_node.get("texturePath")
+    # return TextureOperator(texture)
+
+
+def parseTranslateOperator(operator_node):
+    if operator_node.get("mode") is None:
+        print("translate node has to have mode attribute.")
+    if operator_node.get("mode") == "abs":
+        mode = "MODE_ABSOLUTE"
+    elif operator_node.get("mode") == "rel":
+        mode = "MODE_RELATIVE"
+    else:
+        print("mode has to be either abs or rel.")
+    # 坐标系统
+    if operator_node.get("coordSystem") is None:
+        print("translate node has to have coordSystem attribute.")
+    if operator_node.get("coordSystem") == "world":
+        coordSystem = "COORD_SYSTEM_WORLD"
+    elif operator_node.get("coordSystem") == "object":
+        coordSystem = "COORD_SYSTEM_OBJECT"
+    else:
+        print("coordSystem has to be either world or object.")
+    # 读取参数param
+    for child_node in operator_node:
+        if child_node is None:
+            break
+        else:
+            if child_node.tag == "param":
+                if child_node.get("name") is None:
+                    print("param has to have name attribute.")
+                else:
+                    name = child_node.get("name")
+                if child_node.get("value") is None:
+                    print("param has to have value attribute.")
+                else:
+                    value = child_node.get("value")
+                if child_node.get("type") is None:
+                    print("param has to have type attribute.")
+                else:
+                    translateType = child_node.get("type")
+                if name == "x":
+                    if translateType == "absolute":
+                        # x=abs(value)
+                        x = value
+                    elif translateType == "relative":
+                        x = value
+                    else:
+                        print("type of param for translate has to be either absolute or relative.")
+                elif name == "y":
+                    if translateType == "absolute":
+                        # y=abs(value)
+                        y = value
+                    elif translateType == "relative":
+                        y = value
+                    else:
+                        print("type of param for translate has to be either absolute or relative.")
+                elif name == "z":
+                    if translateType == "absolute":
+                        # z=abs(value)
+                        z = value
+                    elif translateType == "relative":
+                        z = value
+                    else:
+                        print("type of param for translate has to be either absolute or relative.")
+    # return TranslateOperator(mode, coordSystem, x, y, z)
 
 
 if __name__ == "__main__":
